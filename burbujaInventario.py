@@ -5,12 +5,31 @@
 # Despejando j:   j = n -1
 # Ejemplo: [5, 3, 8, 1, 2] --> i=0: [3, 5, 8, 1, 2] --> i=1: [3, 5, 8, 1, 2] --> i=2: [3, 5, 1, 8, 2] --> i=3: [3, 5, 1, 8, 2];  el número mayor siempre que da al final, entonces a j se le puede también restar i al final para ignorar ese número mayor.  j = n - 1 - i
 
+import os
+import csv
+
 def burbuja(lista, indices):
     n = len(lista)
     for i in range(n):
         for j in range(0, n-1-i):
             if lista[indices[j+1]] < lista[indices[j]]:
                 indices[j+1], indices[j] = indices[j], indices[j+1]
+
+def crear_archivo_csv(contenido):
+    while True:
+        try:
+            nombre_archivo = input("Inserte el nombre del archivo para crearlo, (no digite la extension): ")
+        except Exception as e:
+            print(e)
+        
+        if nombre_archivo.endswith(".csv"):
+            pass
+        else:
+            print("Recuerda que la extensión del archivo debe ser .csv, la voy a cambiar :)")
+            nombre_archivo = nombre_archivo + ".csv"
+    os.system(f"touch {nombre_archivo}.{extension}")
+    with open(nombre_archivo, "w", encoding="utf-8") as archivo:
+        archivo.write(contenido)
 
 def main():
     inventario = {}
@@ -67,13 +86,21 @@ def main():
 
     print(f"\n\nInventario Ordenado:\n")
     items = list(inventario_ordenado.items())
+    lista_de_diccionario = []
     contador = 0
+    fila_diccionario = []
     for i in items:
         if i[0].endswith(str(contador)):
-            print(i)
+            fila_diccionario.append(i)
+
         else:
             contador += 1
-            print(f"\n{i}")
+            lista_de_diccionario.append(dict(fila_diccionario))
+            fila_diccionario = []
+            fila_diccionario.append(i)
+
+    print(lista_de_diccionario)
+    # crear_archivo(inventario_ordenado)
 
 if __name__ == "__main__":
     main()
