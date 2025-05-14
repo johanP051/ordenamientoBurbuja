@@ -7,6 +7,7 @@
 
 import os
 import csv
+from colorama import Fore, Back, Style
 
 def burbuja(lista, indices):
     n = len(lista)
@@ -18,18 +19,37 @@ def burbuja(lista, indices):
 def crear_archivo_csv(contenido):
     while True:
         try:
-            nombre_archivo = input("Inserte el nombre del archivo para crearlo, (no digite la extension): ")
+            nombre_archivo = input("\nInserte el nombre del archivo para crearlo, (no digite la extension): ")
         except Exception as e:
             print(e)
         
         if nombre_archivo.endswith(".csv"):
-            pass
-        else:
             print("Recuerda que la extensión del archivo debe ser .csv, la voy a cambiar :)")
-            nombre_archivo = nombre_archivo + ".csv"
-    os.system(f"touch {nombre_archivo}.{extension}")
-    with open(nombre_archivo, "w", encoding="utf-8") as archivo:
-        archivo.write(contenido)
+            break
+        else: break
+    nombre_archivo += ".csv"
+
+    #k.split("_") = [['nombre', '0'], ['precio', '0'], ['cantidad', '0']]
+    #k.split("_")[0] = [nombre, precio, cantidad']
+    # print(llaves)
+
+    # nombres_de_campo = [k.split("_")[0] for k in contenido[0].keys()]
+
+    #Renombrando cada clave del diccionario para que todas se llamen igual
+    for diccionario in contenido:
+        llaves_diccionario = diccionario.keys()
+        for llave in llaves_diccionario:
+            nueva_llave = llave.split("_")[0]
+            diccionario[nueva_llave] = diccionario.pop(llave)
+
+    nombres_de_campo = [k for k in contenido[0].keys()]
+
+    os.system(f"touch {nombre_archivo}")
+    with open(nombre_archivo, 'w', newline='') as mi_archivo:
+        writer = csv.DictWriter(mi_archivo, fieldnames=nombres_de_campo)
+        writer.writeheader()
+        writer.writerows(contenido)
+    return f"\n {Fore.YELLOW} Revisa que el inventario ordenado: {Style.RESET_ALL} \n {contenido}\n\n Haya sido guardado en el archivo: {Fore.YELLOW} {nombre_archivo} {Style.RESET_ALL} de tu carpeta actual"
 
 def main():
     inventario = {}
@@ -63,7 +83,7 @@ def main():
         if continuar != "s":
             break
         
-    print(f"\nInventario inicial: {inventario}")
+    print(f"\nInventario inicial:\n {inventario}")
 
     opciones = {1: "Nombre", 2: "Precio", 3: "Cantidad"}
     print(f"\nTiene las siguientes opciones para el criterio de ordenamiento: {opciones}")
@@ -78,29 +98,18 @@ def main():
     # lista = ["manzana", "pera"]
     # print(list(enumerate(lista)))
 
+    lista_de_diccionarios = []
     inventario_ordenado = {}
+
     for posicion_inventario, indice_ordenado in enumerate(indices):
         inventario_ordenado[f"nombre_{posicion_inventario}"] = valores_nombre[indice_ordenado]
         inventario_ordenado[f"precio_{posicion_inventario}"] = valores_precio[indice_ordenado]
         inventario_ordenado[f"cantidad_{posicion_inventario}"] = valores_cantidad[indice_ordenado]
+        lista_de_diccionarios.append(inventario_ordenado)
+        inventario_ordenado = {}
 
-    print(f"\n\nInventario Ordenado:\n")
-    items = list(inventario_ordenado.items())
-    lista_de_diccionario = []
-    contador = 0
-    fila_diccionario = []
-    for i in items:
-        if i[0].endswith(str(contador)):
-            fila_diccionario.append(i)
-
-        else:
-            contador += 1
-            lista_de_diccionario.append(dict(fila_diccionario))
-            fila_diccionario = []
-            fila_diccionario.append(i)
-
-    print(lista_de_diccionario)
-    # crear_archivo(inventario_ordenado)
+    archivo_csv = crear_archivo_csv(lista_de_diccionarios)
+    print(archivo_csv)
 
 if __name__ == "__main__":
     main()
